@@ -12,14 +12,17 @@ months_names = ['january', 'february', 'march', 'april', 'may', 'june', 'july', 
 
 
 def valid_city(city):
+    city = city.lower()
     return city == 'chicago' or city == 'new york city' or city == 'washington'
 
 
 def valid_month(month):
+    month = month.lower()
     return months_names.count(month) > 0 or month == 'all'
 
 
 def valid_day(day):
+    day = day.lower()
     return DAYS.count(day) > 0 or day == 'all'
 
 
@@ -37,6 +40,7 @@ def get_filters():
     city = ''
     while not valid_city(city):
         city = input("Enter the city you want statistics for: chicago or new york city or washington ")
+        city = city.lower()
         if valid_city(city):
             break
 
@@ -44,10 +48,12 @@ def get_filters():
     month = ''
     while not valid_month(month):
         month = input('Enter a month you want statistics for: (all, january, february, ... , june)')
+        month = month.lower()
     # TO DO: get user input for day of week (all, monday, tuesday, ... sunday)
     day = ''
     while not valid_day(day):
         day = input('Enter a day you want statistics for: (all, monday, tuesday, ... sunday)')
+        day = day.lower()
     print('-' * 40)
     return city, month, day
 
@@ -78,7 +84,7 @@ def load_data(city, month, day):
         print(df['month'].head())
 
     if day != 'all':
-        df = df[df['day_of_week'] == day.title()]
+        df = df[df['day_of_week'] == DAYS.index(day)]
 
     return df
 
@@ -91,12 +97,12 @@ def time_stats(df):
 
     # TO DO: display the most common month
     if df['month'].size > 0:
-        print('The most common month is:', months_names[df['month'].mode()[0] - 1])
+        print('The most common month is:', months_names[df['month'].mode()[0]])
     else:
         print('There is not any common month in the given time intervals')
     # TO DO: display the most common day of week
     if df['day_of_week'].size > 0:
-        print('The most common day of week : ', DAYS[df['day_of_week'].mode()[0] - 1])
+        print('The most common day of week : ', DAYS[df['day_of_week'].mode()[0]])
     else:
         print('There is not any common day in the given time intervals')
 
@@ -163,14 +169,18 @@ def user_stats(df):
     else:
         print('Gender is not present in this dataset')
     # TO DO: Display earliest, most recent, and most common year of birth
-    print('Most recent year of birth: ', df['Birth Year'].max())
-    print('Most common year of birth: ', df['Birth Year'].mode()[0])
+    if 'Birth Year' in df:
+        print('Most recent year of birth: ', df['Birth Year'].max())
+
+    if 'Birth Year' in df:
+        print('Most common year of birth: ', df['Birth Year'].mode()[0])
 
     print("\nThis took %s seconds." % (time.time() - start_time))
     print('-' * 40)
 
 
 def main():
+    cnt = 0
     while True:
         city, month, day = get_filters()
         df = load_data(city, month, day)
@@ -180,7 +190,15 @@ def main():
         trip_duration_stats(df)
         user_stats(df)
 
+        repeat = 'yes'
+        while repeat == 'yes' and cnt+5 < df.size:
+            repeat = input('\nWould like to get the next 5 rows ?\n')
+            repeat = repeat.lower()
+            if repeat == 'yes':
+                print(df[cnt:cnt + 5])
+                cnt += 5
         restart = input('\nWould you like to restart? Enter yes or no.\n')
+
         if restart.lower() != 'yes':
             break
 
