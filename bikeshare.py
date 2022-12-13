@@ -180,8 +180,8 @@ def user_stats(df):
 
 
 def main():
-    cnt = 0
     while True:
+        cnt = 0
         city, month, day = get_filters()
         df = load_data(city, month, day)
 
